@@ -1,3 +1,5 @@
+from flask import Flask
+import os
 import datetime
 import time
 import http.client
@@ -16,7 +18,14 @@ def getBTCPrice():
     return loaded_json["bpi"]["USD"]["rate"]
 
 
-while True:
-    print(getBTCPrice())
-    # print(datetime.datetime.now())
-    time.sleep(1)
+app = Flask(__name__)
+
+
+@app.route('/')
+def getPrice():
+    price = getBTCPrice()
+    return price
+
+
+if __name__ == "__main__":
+    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
