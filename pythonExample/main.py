@@ -20,6 +20,8 @@ def initialize_tracer(project_id):
 
     return tracer
 
+# get the current usd to bitcoin price from coindesk
+
 
 def getBTCPrice():
     conn = http.client.HTTPSConnection("api.coindesk.com")
