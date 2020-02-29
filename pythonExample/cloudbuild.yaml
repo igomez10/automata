@@ -1,6 +1,6 @@
 steps:
   # build base image with requirements
-  - name: "eu.gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/docker"
     args:
       - "build"
       - "--tag"
