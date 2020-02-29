@@ -26,7 +26,7 @@ steps:
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"]
   # Deploy app container image to Cloud Run
-  - name: "eu.gcr.io/cloud-builders/gcloud"
+  - name: "gcr.io/cloud-builders/gcloud"
     args:
       - "run"
       - "deploy"
