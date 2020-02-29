@@ -9,12 +9,12 @@ steps:
       - "$_DOCKERFILE_BASE_FILE"
       - "$_DOCKERFILE"
   # push base image with requirements
-  - name: "eu.gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/docker"
     args:
       - "push"
       - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME/base_image:$COMMIT_SHA"
   # build the container image
-  - name: "eu.gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/docker"
     args:
       - "build"
       - "--build-arg"
@@ -23,7 +23,7 @@ steps:
       - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"
       - "$_DOCKERFILE"
   # push the app container image to Container Registry
-  - name: "eu.gcr.io/cloud-builders/docker"
+  - name: "gcr.io/cloud-builders/docker"
     args: ["push", "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"]
   # Deploy app container image to Cloud Run
   - name: "eu.gcr.io/cloud-builders/gcloud"
