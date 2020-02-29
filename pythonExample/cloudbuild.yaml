@@ -18,7 +18,7 @@ steps:
     args:
       - "build"
       - "--build-arg"
-      - "BASE=gcr.io/$PROJECT_ID/$_SERVICE_NAME/base_image:$COMMIT_SHA"
+      - "BASE=eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME/base_image:$COMMIT_SHA"
       - "--tag"
       - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"
       - "$_DOCKERFILE"
