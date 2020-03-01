@@ -50,7 +50,7 @@ def getPrice():
 if __name__ == "__main__":
     tracer = initialize_tracer(os.environ.get("GOOGLE_CLOUD_PROJECT"))
     app.config['TRACER'] = tracer
-    debug = bool(os.environ.get("_DEBUG"))
+    debug = bool(os.environ.get("_DEBUG"), False)
     app.run(debug=debug,
             host='0.0.0.0',
             port=int(os.environ.get('PORT', 8080)))
