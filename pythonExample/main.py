@@ -1,10 +1,11 @@
-from flask import Flask
 import os
 import datetime
 import time
 import http.client
 import mimetypes
 import json
+from flask import Flask
+
 from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
 import opencensus.trace.tracer
 
@@ -49,5 +50,7 @@ def getPrice():
 if __name__ == "__main__":
     tracer = initialize_tracer(os.environ.get("GOOGLE_CLOUD_PROJECT"))
     app.config['TRACER'] = tracer
-
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 8080)))
+    debug = bool(os.environ.get("_DEBUG"))
+    app.run(debug=debug,
+            host='0.0.0.0',
+            port=int(os.environ.get('PORT', 8080)))
