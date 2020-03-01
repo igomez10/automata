@@ -7,6 +7,9 @@ ENV _BASE_URL $_BASE_URL
 ARG _AIRTABLE_API_KEY
 ENV _AIRTABLE_API_KEY $_AIRTABLE_API_KEY
 
+ARG _AIRTABLE_BASE_ID
+ENV _AIRTABLE_BASE_ID $_AIRTABLE_BASE_ID
+
 
 RUN pip install -r requirements.txt
 CMD [ "python", "-u", "./main.py" ]

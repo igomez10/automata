@@ -23,8 +23,21 @@ def checkIfPropertyExists(propertyID):
 
 
 def postProperty(id):
-    print(id)
-    return
+    conn = http.client.HTTPSConnection("api.airtable.com")
+    payload = '{"records": [ {      "fields": {        "ID":' + f' "{id}" ' +  '    }    }  ]}'
+    
+    api_key = os.getenv("_AIRTABLE_API_KEY")
+    base_id = os.getenv("_AIRTABLE_BASE_ID")
+
+    headers = {
+        'Authorization': f'Bearer {api_key}',
+        'Content-Type': 'application/json'
+    }
+    conn.request("POST", f'/v0/{base_id}/Properties', payload, headers)
+    res = conn.getresponse()
+    if res.code == 200:
+        logging.debug("Created new entry")
+    
 
 
 def scanProperty(propertyID):
