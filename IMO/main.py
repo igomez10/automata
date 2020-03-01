@@ -37,7 +37,10 @@ def postProperty(id):
     res = conn.getresponse()
     if res.code == 200:
         logging.debug("Created new entry")
-    
+    else:
+        logging.error("Failed posting new property")
+        data = res.read()
+        logging.error(data.decode("utf-8"))
 
 
 def scanProperty(propertyID):
