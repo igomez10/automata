@@ -86,6 +86,7 @@ def listenIncomingTraffic():
     threading.Thread(
         target=app.run,
         kwargs=dict(debug=False,
+                    host='0.0.0.0',
                     port=int(os.environ.get('PORT', 8080)),
                     use_reloader=False,
                     )).start()
