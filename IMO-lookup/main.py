@@ -73,26 +73,28 @@ def postProperty(id):
 
 
 def scanProperty(propertyID):
-    logging.debug("Looking for property:")
-    logging.debug(propertyID)
+    logging.debug("Looking for property %d", propertyID)
     exists = checkIfPropertyExists(propertyID)
     if exists:
         logging.debug("Property with id %s exists" % propertyID)
         postMessage(str(propertyID))
-        # postProperty(propertyID)
 
 
-counter = 0
-biggestIdentifier = 114988500
 app = Flask(__name__)
 
 
 def scanProperties():
     logging.info("Started scanning properties")
-    while True:
-        global counter
+    counter = 0
+    initialIdentifier = 114987500
+    currentIdentifier = initialIdentifier
+    biggestIdentifier = 114990500
+
+    while currentIdentifier < biggestIdentifier:
         scanProperty(biggestIdentifier + counter)
-        counter = counter + 1
+        currentIdentifier = currentIdentifier + 1
+        if currentIdentifier == biggestIdentifier-1:
+            currentIdentifier = initialIdentifier
         time.sleep(1)
 
 
