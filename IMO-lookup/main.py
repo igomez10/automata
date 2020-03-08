@@ -11,7 +11,7 @@ from google.cloud import pubsub_v1
 
 
 def postMessage(message):
-    project_id = os.environ.get('PROJECT_ID')
+    project_id = os.environ.get('GCP_PROJECT')
     topic_name = os.environ.get("_SUB_PUB_TOPIC_NAME")
 
     topic_path = 'projects/{project_id}/topics/{topic_name}'.format(
