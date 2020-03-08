@@ -1,6 +1,6 @@
 FROM python:3.7-slim
 # FROM gcr.io/google-appengine/python
-ADD . .
+
 
 # Use -p python3 or -p python3.7 to select python version. Default is version 2.
 # RUN virtualenv /env -p python3
@@ -14,7 +14,8 @@ ADD . .
 # dependencies into the virtualenv.
 # ADD requirements.txt /app/requirements.txt
 # ADD .env .env
-# RUN pip install -r /app/requirements.txt
+ADD . .
+RUN pip install -r requirements.txt
 
 ARG _BASE_URL
 ENV _BASE_URL $_BASE_URL
