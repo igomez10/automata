@@ -83,13 +83,12 @@ def setupEnvs():
 
 # listenIncomingTraffic is only a placeholder for CloudRun requirements
 def listenIncomingTraffic():
-    z = threading.Thread(
+    threading.Thread(
         target=app.run,
         kwargs=dict(debug=False,
-                    host="0.0.0.0",
                     port=int(os.environ.get('PORT', 8080)),
-                    ))
-    z.start()
+                    use_reloader=False,
+                    )).start()
 
 
 if __name__ == "__main__":
