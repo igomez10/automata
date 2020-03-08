@@ -7,6 +7,20 @@ from flask import Flask
 from dotenv import load_dotenv
 from pathlib import Path  # python3 only
 import logging
+from google.cloud import pubsub_v1
+
+
+def postMessage(message):
+    project_id = os.environ.get('_PROJECT_ID')
+    topic_name = os.environ.get("_SUB_PUB_TOPIC_NAME")
+
+    topic_path = 'projects/{project_id}/topics/{topic_name}'.format(
+        project_id=os.getenv('_GOOGLE_CLOUD_PROJECT'),
+        topic_name=topic_name
+    )
+
+    publisher = pubsub_v1.PublisherClient()
+    publisher.publish(topic_path, str.encode(message))
 
 
 def checkIfPropertyExists(propertyID):
@@ -52,7 +66,8 @@ def scanProperty(propertyID):
     if exists:
         logging.debug("Property exists:")
         logging.debug(propertyID)
-        postProperty(propertyID)
+        postMessage(str(propertyID))
+        # postProperty(propertyID)
 
 
 counter = 0
