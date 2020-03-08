@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from pathlib import Path  # python3 only
 import logging
 
+
 def checkIfPropertyExists(propertyID):
     base_url = os.environ.get("_BASE_URL")
     conn = http.client.HTTPSConnection(base_url)
@@ -24,16 +25,17 @@ def checkIfPropertyExists(propertyID):
 
 def postProperty(id):
     conn = http.client.HTTPSConnection("api.airtable.com")
-    payload = '{"records": [ {      "fields": {        "ID":' + f' "{id}" ' +  '    }    }  ]}'
-    
+
+    payload = '{"records":[{"fields": {"ID": "%s" }}]}' % str(id)
+
     api_key = os.getenv("_AIRTABLE_API_KEY")
     base_id = os.getenv("_AIRTABLE_BASE_ID")
 
     headers = {
-        'Authorization': f'Bearer {api_key}',
+        'Authorization': 'Bearer %s' % (api_key),
         'Content-Type': 'application/json'
     }
-    conn.request("POST", f'/v0/{base_id}/Properties', payload, headers)
+    conn.request("POST", '/v0/%s/Properties' % (base_id), payload, headers)
     res = conn.getresponse()
     if res.code == 200:
         logging.debug("Created new entry")
@@ -55,7 +57,6 @@ def scanProperty(propertyID):
 
 counter = 0
 biggestIdentifier = 114988500
-started = False
 app = Flask(__name__)
 
 
@@ -70,28 +71,35 @@ def scanProperties():
 
 @app.route('/')
 def getPrice():
-    global started
-    if started:
-        return "OK"
-    started = True
-    x = threading.Thread(target=scanProperties)
-    x.start()
-    return "Started"
+    return "OK"
 
 
 def setupEnvs():
     env_path = Path('.') / '.env'
     load_dotenv(dotenv_path=env_path, verbose=True)
+    for e in os.environ:
+        print("%s %s" % (e, os.environ[e]))
+
+
+# listenIncomingTraffic is only a placeholder for CloudRun requirements
+def listenIncomingTraffic():
+    z = threading.Thread(
+        target=app.run,
+        kwargs=dict(debug=False,
+                    host="0.0.0.0",
+                    port=int(os.environ.get('PORT', 8080)),
+                    ))
+    z.start()
 
 
 if __name__ == "__main__":
     setupEnvs()
-    started = False
     format = "%(asctime)s: %(message)s"
     logging.basicConfig(format=format,
                         level=logging.DEBUG,
                         datefmt="%H:%M:%S")
+
     debug = os.getenv("_DEBUG", False)
-    app.run(debug=debug,
-            host='0.0.0.0',
-            port=int(os.environ.get('PORT', 8080)))
+    listenIncomingTraffic()
+
+    scanProperties()
