@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import mimetypes
 import http.client
 import time
@@ -8,6 +10,8 @@ from dotenv import load_dotenv
 from pathlib import Path  # python3 only
 import logging
 from google.cloud import pubsub_v1
+from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
+import opencensus.trace.tracer
 
 
 def postMessage(message):
@@ -20,8 +24,13 @@ def postMessage(message):
     )
 
     publisher = pubsub_v1.PublisherClient()
+
+    tracer = initialize_tracer()
+    tracer.start_span(name="sub/pub")
+
     future = publisher.publish(topic_path, str.encode(message))
     print(future.result())
+    tracer.end_span()
 
 
 def checkIfPropertyExists(propertyID):
@@ -29,9 +38,12 @@ def checkIfPropertyExists(propertyID):
     conn = http.client.HTTPSConnection(base_url)
     payload = ''
     headers = {}
+
+    tracer = initialize_tracer()
+    tracer.start_span(name=base_url)
     conn.request("HEAD", "/expose/"+str(propertyID), payload, headers)
     res = conn.getresponse()
-
+    tracer.end_span()
     if res.code == 200:
         return True
 
@@ -65,8 +77,7 @@ def scanProperty(propertyID):
     logging.debug(propertyID)
     exists = checkIfPropertyExists(propertyID)
     if exists:
-        logging.debug("Property exists:")
-        logging.debug(propertyID)
+        logging.debug("Property with id %s exists" % propertyID)
         postMessage(str(propertyID))
         # postProperty(propertyID)
 
@@ -91,10 +102,21 @@ def getPrice():
 
 
 def setupEnvs():
-    env_path = Path('.') / '.env'
+    env_path = Path(os.environ.get("ENV_FILE_DIR", ".")) / '.env'
     load_dotenv(dotenv_path=env_path, verbose=True)
     for e in os.environ:
         print("%s %s" % (e, os.environ[e]))
+
+
+def initialize_tracer():
+    exporter = stackdriver_exporter.StackdriverExporter(
+        project_id=os.environ.get("PROJECT_ID")
+    )
+    tracer = opencensus.trace.tracer.Tracer(
+        exporter=exporter,
+        sampler=opencensus.trace.tracer.samplers.AlwaysOnSampler()
+    )
+    return tracer
 
 
 # listenIncomingTraffic is only a placeholder for CloudRun requirements
