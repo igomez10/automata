@@ -11,16 +11,17 @@ from google.cloud import pubsub_v1
 
 
 def postMessage(message):
-    project_id = os.environ.get('_PROJECT_ID')
+    project_id = os.environ.get('PROJECT_ID')
     topic_name = os.environ.get("_SUB_PUB_TOPIC_NAME")
 
     topic_path = 'projects/{project_id}/topics/{topic_name}'.format(
-        project_id=os.getenv('_GOOGLE_CLOUD_PROJECT'),
+        project_id=project_id,
         topic_name=topic_name
     )
 
     publisher = pubsub_v1.PublisherClient()
-    publisher.publish(topic_path, str.encode(message))
+    future = publisher.publish(topic_path, str.encode(message))
+    print(future.result())
 
 
 def checkIfPropertyExists(propertyID):
@@ -116,5 +117,4 @@ if __name__ == "__main__":
 
     debug = os.getenv("_DEBUG", False)
     listenIncomingTraffic()
-
     scanProperties()
