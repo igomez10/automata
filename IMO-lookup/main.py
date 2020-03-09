@@ -12,6 +12,8 @@ import logging
 from google.cloud import pubsub_v1
 import opencensus
 from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
+from opencensus.common.transports.async_ import AsyncTransport
+from opencensus.trace.tracer import Tracer
 
 
 def postMessage(message):
@@ -108,7 +110,7 @@ def listenIncomingTraffic():
 
 exporter = stackdriver_exporter.StackdriverExporter(
     project_id=os.environ.get("PROJECT_ID"),
-    transport=opencensus.common.transports.async_.AsyncTransport,
+    transport=AsyncTransport,
 )
 
 tracer = opencensus.trace.tracer.Tracer(
