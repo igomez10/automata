@@ -91,10 +91,10 @@ def scanProperties():
     currentIdentifier = initialIdentifier
     biggestIdentifier = 114990500
 
-    while currentIdentifier < biggestIdentifier:
-        scanProperty(biggestIdentifier + counter)
+    while True:
+        scanProperty(currentIdentifier + counter)
         currentIdentifier = currentIdentifier + 1
-        if currentIdentifier == biggestIdentifier-1:
+        if currentIdentifier == biggestIdentifier:
             currentIdentifier = initialIdentifier
         time.sleep(1)
 
