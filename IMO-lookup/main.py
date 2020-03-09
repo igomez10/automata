@@ -40,15 +40,19 @@ def checkIfPropertyExists(propertyID):
     payload = ''
     headers = {}
 
-    tracer = initialize_tracer()
-    tracer.start_span(name=base_url)
-    conn.request("HEAD", "/expose/"+str(propertyID), payload, headers)
-    res = conn.getresponse()
-    tracer.end_span()
-    if res.code == 200:
-        return True
-
-    return False
+    try:
+        tracer = initialize_tracer()
+        tracer.start_span(name=base_url)
+        conn.request("HEAD", "/expose/"+str(propertyID), payload, headers)
+        res = conn.getresponse()
+        tracer.end_span()
+        if res.code == 200:
+            return True
+    except Exception as identifier:
+        logging.error("Failed making HTTP request")
+        logging.error(type(identifier))
+        logging.error(identifier)
+        return False
 
 
 def postProperty(id):
@@ -97,6 +101,7 @@ def scanProperties():
         if currentIdentifier == biggestIdentifier:
             currentIdentifier = initialIdentifier
         time.sleep(1)
+    logging.error("Exited while loop")
 
 
 @app.route('/')
