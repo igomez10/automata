@@ -10,11 +10,8 @@ from dotenv import load_dotenv
 from pathlib import Path  # python3 only
 import logging
 from google.cloud import pubsub_v1
+import opencensus
 from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
-import opencensus.trace.tracer
-from opencensus.common.transports.async_ import AsyncTransport
-from opencensus.trace.tracer import Tracer
-from opencensus.trace.samplers import AlwaysOnSampler
 
 
 def postMessage(message):
@@ -57,28 +54,6 @@ def checkIfPropertyExists(propertyID):
         return exists
 
 
-def postProperty(id):
-    conn = http.client.HTTPSConnection("api.airtable.com")
-
-    payload = '{"records":[{"fields": {"ID": "%s" }}]}' % str(id)
-
-    api_key = os.getenv("_AIRTABLE_API_KEY")
-    base_id = os.getenv("_AIRTABLE_BASE_ID")
-
-    headers = {
-        'Authorization': 'Bearer %s' % (api_key),
-        'Content-Type': 'application/json'
-    }
-    conn.request("POST", '/v0/%s/Properties' % (base_id), payload, headers)
-    res = conn.getresponse()
-    if res.code == 200:
-        logging.debug("Created new entry")
-    else:
-        logging.error("Failed posting new property")
-        data = res.read()
-        logging.error(data.decode("utf-8"))
-
-
 def scanProperty(propertyID):
     logging.debug("Looking for property %d", propertyID)
     exists = checkIfPropertyExists(propertyID)
@@ -105,7 +80,7 @@ def scanProperties():
 
 app = Flask(__name__)
 @app.route('/')
-def getPrice():
+def getHome():
     return "OK"
 
 
@@ -116,7 +91,7 @@ def setupEnvs():
         print("%s %s" % (e, os.environ[e]))
 
 
-def get_tracer():
+def getTracer():
     return tracer
 
 
@@ -133,7 +108,7 @@ def listenIncomingTraffic():
 
 exporter = stackdriver_exporter.StackdriverExporter(
     project_id=os.environ.get("PROJECT_ID"),
-    transport=AsyncTransport,
+    transport=opencensus.common.transports.async_.AsyncTransport,
 )
 
 tracer = opencensus.trace.tracer.Tracer(
