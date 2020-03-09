@@ -101,6 +101,7 @@ def scanProperties():
     logging.error("Exited while loop")
 
 
+app = Flask(__name__)
 @app.route('/')
 def getPrice():
     return "OK"
@@ -127,8 +128,6 @@ def listenIncomingTraffic():
                     use_reloader=False,
                     )).start()
 
-
-app = Flask(__name__)
 
 exporter = stackdriver_exporter.StackdriverExporter(
     project_id=os.environ.get("PROJECT_ID"),
