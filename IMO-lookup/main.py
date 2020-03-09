@@ -13,6 +13,8 @@ from google.cloud import pubsub_v1
 from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
 import opencensus.trace.tracer
 from opencensus.common.transports.async_ import AsyncTransport
+from opencensus.trace.tracer import Tracer
+from opencensus.trace.samplers import AlwaysOnSampler
 
 
 def postMessage(message):
@@ -24,14 +26,10 @@ def postMessage(message):
         topic_name=topic_name
     )
 
-    publisher = pubsub_v1.PublisherClient()
-
-    tracer = initialize_tracer()
-    tracer.start_span(name="sub/pub")
-
-    future = publisher.publish(topic_path, str.encode(message))
-    print(future.result())
-    tracer.end_span()
+    with tracer.span(name="sub/pub"):
+        publisher = pubsub_v1.PublisherClient()
+        future = publisher.publish(topic_path, str.encode(message))
+        print(future.result())
 
 
 def checkIfPropertyExists(propertyID):
@@ -39,20 +37,22 @@ def checkIfPropertyExists(propertyID):
     conn = http.client.HTTPSConnection(base_url, timeout=10)
     payload = ''
     headers = {}
-
+    exists = False
     try:
-        tracer = initialize_tracer()
-        tracer.start_span(name=base_url)
-        conn.request("HEAD", "/expose/"+str(propertyID), payload, headers)
-        res = conn.getresponse()
-        tracer.end_span()
+        with tracer.span(name=base_url):
+            conn.request("HEAD", "/expose/"+str(propertyID), payload, headers)
+            res = conn.getresponse()
         if res.code == 200:
-            return True
+            exists = True
+
     except Exception as identifier:
         logging.error("Failed making HTTP request")
         logging.error(type(identifier))
         logging.error(identifier)
-        return False
+
+    finally:
+        conn.close()
+        return exists
 
 
 def postProperty(id):
@@ -85,9 +85,6 @@ def scanProperty(propertyID):
         postMessage(str(propertyID))
 
 
-app = Flask(__name__)
-
-
 def scanProperties():
     logging.info("Started scanning properties")
     counter = 0
@@ -116,14 +113,7 @@ def setupEnvs():
         print("%s %s" % (e, os.environ[e]))
 
 
-def initialize_tracer():
-    exporter = stackdriver_exporter.StackdriverExporter(
-        project_id=os.environ.get("PROJECT_ID"),
-        transport=AsyncTransport
-    )
-    tracer = opencensus.trace.tracer.Tracer(
-        exporter=exporter
-    )
+def get_tracer():
     return tracer
 
 
@@ -136,6 +126,18 @@ def listenIncomingTraffic():
                     port=int(os.environ.get('PORT', 8080)),
                     use_reloader=False,
                     )).start()
+
+
+app = Flask(__name__)
+
+exporter = stackdriver_exporter.StackdriverExporter(
+    project_id=os.environ.get("PROJECT_ID"),
+)
+
+tracer = opencensus.trace.tracer.Tracer(
+    exporter=exporter,
+    sampler=opencensus.trace.tracer.samplers.AlwaysOnSampler()
+)
 
 
 if __name__ == "__main__":
