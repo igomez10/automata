@@ -25,11 +25,13 @@ def postMessage(message):
         project_id=project_id,
         topic_name=topic_name
     )
-
-    with tracer.span(name="sub/pub"):
-        publisher = pubsub_v1.PublisherClient()
-        future = publisher.publish(topic_path, str.encode(message))
-        print(future.result())
+    try:
+        with tracer.span(name="sub/pub"):
+            publisher = pubsub_v1.PublisherClient()
+            future = publisher.publish(topic_path, str.encode(message))
+            print(future.result())
+    except Exception:
+        logging.error("failed to post message to pub/sub")
 
 
 def checkIfPropertyExists(propertyID):
@@ -39,8 +41,8 @@ def checkIfPropertyExists(propertyID):
     headers = {}
     exists = False
     try:
-        with tracer.span(name=base_url):
-            conn.request("HEAD", "/expose/"+str(propertyID), payload, headers)
+        with tracer.span(name="base_url/expose/%d" % propertyID):
+            conn.request("HEAD", "/expose/%s" % propertyID, payload, headers)
             res = conn.getresponse()
         if res.code == 200:
             exists = True
@@ -131,6 +133,7 @@ def listenIncomingTraffic():
 
 exporter = stackdriver_exporter.StackdriverExporter(
     project_id=os.environ.get("PROJECT_ID"),
+    transport=AsyncTransport,
 )
 
 tracer = opencensus.trace.tracer.Tracer(
