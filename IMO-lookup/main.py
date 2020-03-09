@@ -12,6 +12,7 @@ import logging
 from google.cloud import pubsub_v1
 from opencensus.ext.stackdriver import trace_exporter as stackdriver_exporter
 import opencensus.trace.tracer
+from opencensus.common.transports.async_ import AsyncTransport
 
 
 def postMessage(message):
@@ -35,7 +36,7 @@ def postMessage(message):
 
 def checkIfPropertyExists(propertyID):
     base_url = os.environ.get("_BASE_URL")
-    conn = http.client.HTTPSConnection(base_url)
+    conn = http.client.HTTPSConnection(base_url, timeout=10)
     payload = ''
     headers = {}
 
@@ -112,11 +113,11 @@ def setupEnvs():
 
 def initialize_tracer():
     exporter = stackdriver_exporter.StackdriverExporter(
-        project_id=os.environ.get("PROJECT_ID")
+        project_id=os.environ.get("PROJECT_ID"),
+        transport=AsyncTransport
     )
     tracer = opencensus.trace.tracer.Tracer(
-        exporter=exporter,
-        sampler=opencensus.trace.tracer.samplers.AlwaysOnSampler()
+        exporter=exporter
     )
     return tracer
 
