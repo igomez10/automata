@@ -12,39 +12,19 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	"cloud.google.com/go/pubsub"
 )
 
-func handler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Hello world received a request.")
-	target := os.Getenv("TARGET")
-	if target == "" {
-		target = "World"
-	}
-	fmt.Fprintf(w, "Hello %s!\n", target)
-}
-
-func setupCR() {
-	fmt.Println("Hello world sample started.")
-
-	http.HandleFunc("/", handler)
-
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
-
-	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
-}
-
 func verifyPropertyExists(currentIdentifier int) (bool, error) {
-	fmt.Println("\nVisiting property", currentIdentifier)
 
 	baseURL := os.Getenv("_BASE_URL")
 
 	u, err := url.Parse("https://" + baseURL + "/expose/" + strconv.Itoa(currentIdentifier))
 	if err != nil {
-		return false, fmt.Errorf("failed to parse url", err)
+		return false, fmt.Errorf("failed to parse url %+v", err)
 	}
+	fmt.Println("\nVisiting property", u.String())
 
 	ctx, cancel := context.WithTimeout(context.Background(), 10000*time.Millisecond)
 	defer cancel()
@@ -82,6 +62,32 @@ func verifyPropertyExists(currentIdentifier int) (bool, error) {
 	}
 }
 
+func publish(identifier string) error {
+	fmt.Println("publishing", identifier)
+	ctx := context.Background()
+	projectID := os.Getenv("PROJECT_ID")
+	topicID := os.Getenv("TOPIC_ID")
+	if projectID == "" || topicID == "" {
+		return fmt.Errorf("required env variables undefined")
+	}
+	client, err := pubsub.NewClient(ctx, projectID)
+	if err != nil {
+		return fmt.Errorf("pubsub.NewClient: %v", err)
+	}
+
+	t := client.Topic(topicID)
+	result := t.Publish(ctx, &pubsub.Message{
+		Data: []byte(identifier),
+	})
+	// Block until the result is returned and a server-generated
+	// ID is returned for the published message.
+	id, err := result.Get(ctx)
+	if err != nil {
+		return fmt.Errorf("Get: %v", err)
+	}
+	fmt.Printf("Published a message; msg ID: %v\n", id)
+	return nil
+}
 func scanProperties() {
 	fmt.Println("Started scanning properties")
 
@@ -95,6 +101,11 @@ func scanProperties() {
 			fmt.Printf("failed verifying property %d \n %+v\n", currentIdentifier, err)
 		} else if exists {
 			fmt.Printf("✅ - Property %d exists\n", currentIdentifier)
+			go func(currentIdentifier int) {
+				if err := publish(strconv.Itoa(currentIdentifier)); err != nil {
+					fmt.Println(err)
+				}
+			}(currentIdentifier)
 		} else {
 			fmt.Printf("🚫 - Property %d does not exist\n", currentIdentifier)
 		}
@@ -107,7 +118,6 @@ func scanProperties() {
 
 		time.Sleep(1000 * time.Millisecond)
 	}
-	fmt.Println("Unexpected exit from while loop")
 }
 
 func main() {

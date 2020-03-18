@@ -5,9 +5,16 @@ steps:
       - "--tag"
       - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"
       - "$_DOCKERFILE"
+  - name: "gcr.io/cloud-builders/docker"
+    args:
+      - "tag"
+      - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"
+      - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:latest"
   # push the app container image to Container Registry
   - name: "gcr.io/cloud-builders/docker"
     args: ["push", "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"]
+  - name: "gcr.io/cloud-builders/docker"
+    args: ["push", "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:latest"]
   # Deploy app container image to Cloud Run
   - name: "gcr.io/cloud-builders/gcloud"
     args:
@@ -22,3 +29,4 @@ steps:
       - "managed"
 images:
   - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA"
+  - "eu.gcr.io/$PROJECT_ID/$_SERVICE_NAME:latest"
