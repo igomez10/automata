@@ -88,32 +88,33 @@ func publish(identifier string) error {
 	fmt.Printf("Published %s with msg ID: %v\n", identifier, id)
 	return nil
 }
+
 func scanProperties() {
 	fmt.Println("Started scanning properties")
 
 	initialIdentifier := 114987500
-	currentIdentifier := initialIdentifier
+	SetCurrentIdentifier(initialIdentifier)
 	biggestIdentifier := 114990500
 
 	for {
-		exists, err := verifyPropertyExists(currentIdentifier)
+		exists, err := verifyPropertyExists(GetCurrentIdentifier())
 		if err != nil {
-			fmt.Printf("failed verifying property %d \n %+v\n", currentIdentifier, err)
+			fmt.Printf("failed verifying property %d \n %+v\n", GetCurrentIdentifier(), err)
 		} else if exists {
-			fmt.Printf("✅ - Property %d exists\n", currentIdentifier)
-			go func(currentIdentifier int) {
-				if err := publish(strconv.Itoa(currentIdentifier)); err != nil {
+			fmt.Printf("✅ - Property %d exists\n", GetCurrentIdentifier)
+			go func(curr int) {
+				if err := publish(strconv.Itoa(curr)); err != nil {
 					fmt.Println(err)
 				}
-			}(currentIdentifier)
+			}(GetCurrentIdentifier())
 		} else {
-			fmt.Printf("🚫 - Property %d does not exist\n", currentIdentifier)
+			fmt.Printf("🚫 - Property %d does not exist\n", GetCurrentIdentifier())
 		}
 
-		currentIdentifier = currentIdentifier + 1
-		if currentIdentifier > biggestIdentifier {
+		SetCurrentIdentifier(CurrentIdentifier + 1)
+		if GetCurrentIdentifier() > biggestIdentifier {
 			log.Println("restarting counter")
-			currentIdentifier = initialIdentifier
+			SetCurrentIdentifier(initialIdentifier)
 		}
 
 		time.Sleep(1000 * time.Millisecond)
@@ -128,5 +129,6 @@ func main() {
 			time.Sleep(20 * time.Second)
 		}
 	}()
+
 	scanProperties()
 }
