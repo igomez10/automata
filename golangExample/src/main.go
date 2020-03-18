@@ -85,7 +85,7 @@ func publish(identifier string) error {
 	if err != nil {
 		return fmt.Errorf("Get: %v", err)
 	}
-	fmt.Printf("Published a message; msg ID: %v\n", id)
+	fmt.Printf("Published %s with msg ID: %v\n", identifier, id)
 	return nil
 }
 func scanProperties() {
