@@ -46,7 +46,7 @@ func verifyPropertyExists(currentIdentifier int) (bool, error) {
 		return false, fmt.Errorf("failed to parse url", err)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 1000*time.Millisecond)
+	ctx, cancel := context.WithTimeout(context.Background(), 10000*time.Millisecond)
 	defer cancel()
 
 	req, err := http.NewRequestWithContext(ctx, "HEAD", u.String(), nil)
@@ -54,7 +54,7 @@ func verifyPropertyExists(currentIdentifier int) (bool, error) {
 		log.Fatalf("failed to build request %+v", err)
 	}
 
-	c := http.Client{Timeout: 10000 * time.Millisecond}
+	c := http.Client{Timeout: 30000 * time.Millisecond}
 
 	res, err := c.Do(req)
 	if err != nil {
