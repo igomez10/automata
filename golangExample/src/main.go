@@ -122,5 +122,11 @@ func scanProperties() {
 
 func main() {
 	go setupCR()
+	go func() {
+		for {
+			fmt.Println("🩺ALIVE👨‍⚕️")
+			time.Sleep(20 * time.Second)
+		}
+	}()
 	scanProperties()
 }
