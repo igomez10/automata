@@ -13,6 +13,8 @@ RUN  go build -mod=readonly -v -o app
 
 FROM ubuntu:latest
 COPY --from=builder app .
+ARG _BASE_URL
+ENV _BASE_URL ${_BASE_URL}
 RUN apt update 
 RUN apt install -y ca-certificates
 CMD ["./app"]
