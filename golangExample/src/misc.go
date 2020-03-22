@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	// "os"
+	"os"
 )
 
 var CurrentIdentifier = 0
@@ -26,10 +26,9 @@ func handler(w http.ResponseWriter, r *http.Request) {
 func setupCR() {
 	fmt.Println("Hello world sample started.")
 	http.HandleFunc("/", handler)
-	// port := os.Getenv("PORT")
-	port := "8080"
-	// if port == "" {
-	// 	port = "8080"
-	// }
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%s", port), nil))
 }
