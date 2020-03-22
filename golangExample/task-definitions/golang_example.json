@@ -1,0 +1,7 @@
+[
+    {
+        "name": "golang_example",
+        "image": "ubuntu",
+        "essential": true
+    }
+]

@@ -13,8 +13,8 @@ RUN go install -v
 RUN go build -v -o app
 
 
-FROM ubuntu:latest
+FROM alpine:latest
 COPY --from=builder app .
-RUN apt update 
-RUN apt install -y ca-certificates
+RUN apk update 
+RUN apk add ca-certificates
 CMD ["./app"]

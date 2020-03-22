@@ -101,7 +101,7 @@ func scanProperties() {
 		if err != nil {
 			fmt.Printf("failed verifying property %d \n %+v\n", GetCurrentIdentifier(), err)
 		} else if exists {
-			fmt.Printf("✅ - Property %d exists\n", GetCurrentIdentifier)
+			fmt.Printf("✅ - Property %d exists\n", GetCurrentIdentifier())
 			go func(curr int) {
 				if err := publish(strconv.Itoa(curr)); err != nil {
 					fmt.Println(err)

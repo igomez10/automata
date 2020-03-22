@@ -21,7 +21,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("Received Request")
 	w.WriteHeader(200)
 	fmt.Fprintf(w, "Current Identifier %d \n", GetCurrentIdentifier())
-
 }
 
 func setupCR() {
