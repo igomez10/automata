@@ -1,7 +1,5 @@
 {
-    "name": "golang_example",
-    "image": "ubuntu",
-    "essential": true,
+    "family": "golang_example",
     "containerDefinitions": [
         {
             "name": "golang_example",
