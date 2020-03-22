@@ -8,6 +8,8 @@
             "memory": 256
         }
     ],
-    "requiresCompatibilities": "FARGATE",
+    "requiresCompatibilities": [
+        "FARGATE"
+    ],
     "networkMode": "awsvpc"
 }
