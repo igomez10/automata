@@ -2,6 +2,12 @@
     {
         "name": "golang_example",
         "image": "ubuntu",
-        "essential": true
-    }
-]
+        "essential": true,
+        "containerDefinitions": [
+            {
+                "name": "golang_example",
+                "image": "ubuntu",
+                "cpu": 1024,
+                "memory": 256
+            }
+        ]
