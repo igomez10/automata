@@ -27,7 +27,8 @@ on:
   push:
     branches:
       - master
-
+    paths:
+      - "golangExample/**"
 name: Deploy to Amazon ECS
 
 jobs:
