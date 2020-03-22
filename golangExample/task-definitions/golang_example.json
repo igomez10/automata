@@ -7,5 +7,7 @@
             "cpu": 1024,
             "memory": 256
         }
-    ]
+    ],
+    "requiresCompatibilities": "FARGATE",
+    "networkMode": "awsvpc"
 }
