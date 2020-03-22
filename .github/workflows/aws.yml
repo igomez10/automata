@@ -29,6 +29,7 @@ on:
       - master
     paths:
       - "golangExample/**"
+      - ".github/**"
 name: Deploy to Amazon ECS
 
 jobs:

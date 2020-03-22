@@ -3,11 +3,11 @@
     "containerDefinitions": [
         {
             "name": "golang_example",
-            "image": "ubuntu",
-            "cpu": 1024,
-            "memory": 256
+            "image": "ubuntu"
         }
     ],
+    "cpu": "1024",
+    "memory": "256",
     "requiresCompatibilities": [
         "FARGATE"
     ],
